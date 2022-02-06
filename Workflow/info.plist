@@ -34,6 +34,32 @@
 				<false/>
 			</dict>
 		</array>
+		<key>8F44CFA0-9821-4998-B57A-CBD196BD069B</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>F2C7428D-06C2-4B70-8C70-8348AE71B137</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>9EDA38AD-8C38-42CA-A270-CFE7AEC0655C</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>E4256C3E-6831-43F5-805C-F667A3D7E726</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
 		<key>C22E0CBD-0683-4E3A-80E5-6532D8E5440E</key>
 		<array>
 			<dict>
@@ -51,6 +77,19 @@
 			<dict>
 				<key>destinationuid</key>
 				<string>6D56D157-3EBC-41F6-A030-1C9A9E4490DF</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>CB42BCC1-C05C-4B82-821E-BF371D852F7A</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>8F44CFA0-9821-4998-B57A-CBD196BD069B</string>
 				<key>modifiers</key>
 				<integer>0</integer>
 				<key>modifiersubtext</key>
@@ -96,7 +135,7 @@
 			</dict>
 			<dict>
 				<key>destinationuid</key>
-				<string>E4256C3E-6831-43F5-805C-F667A3D7E726</string>
+				<string>9EDA38AD-8C38-42CA-A270-CFE7AEC0655C</string>
 				<key>modifiers</key>
 				<integer>0</integer>
 				<key>modifiersubtext</key>
@@ -129,6 +168,96 @@
 	<string>TinyPNG</string>
 	<key>objects</key>
 	<array>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>acceptsmulti</key>
+				<integer>1</integer>
+				<key>filetypes</key>
+				<array>
+					<string>org.webmproject.webp</string>
+					<string>public.jpeg</string>
+					<string>public.png</string>
+				</array>
+				<key>name</key>
+				<string>TinyPNG Compression</string>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.trigger.action</string>
+			<key>uid</key>
+			<string>7EA1CA9C-97FC-4B89-999A-7CFE3D8CB0AE</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>concurrently</key>
+				<false/>
+				<key>escaping</key>
+				<integer>102</integer>
+				<key>script</key>
+				<string># Constants
+readonly backup_dir="${backup_originals/#\~/${HOME}}/$(date -u +'%Y.%m.%d.%H%M%S')"
+
+# Helpers
+function get_json_key {
+  local -r json="${1}" # JSON string
+  local -r key="${2}" # Of the form ['first']['second'] or .first.second
+
+  local -r result="$(osascript -l 'JavaScript' -e "function run(argv) { return JSON.parse(argv[0])${key} }" "${json}")"
+
+  [[ -n "${key}" &amp;&amp; -n "${result}" ]] || return 1 # If no valid result
+
+  echo -n "${result}"
+}
+
+function error {
+  echo "${1}" &gt;&amp;2 # For Alfred's debugger
+  echo "error|${1}" # For the notification and sound
+  exit 1
+}
+
+# Main
+# Abort if backups are desirable but cannot create directory
+if [[ -n "${backup_originals}" ]] &amp;&amp; ! mkdir -p "${backup_dir}"; then
+  error "Could not create backups directory at ${backup_originals}!"
+fi
+
+# Loop over images
+for image in "${@}"; do
+  json_response="$(curl --silent --user api:"${api_key}" --data-binary @"${image}" -i 'https://api.tinify.com/shrink' | tail -1)"
+
+  # On error
+  if [[ -n "$(get_json_key "${json_response}" '.error')" ]]; then
+    error "$(get_json_key "${json_response}" '.message')"
+  fi
+
+  # Backup image
+  if [[ -d "${backup_dir}" ]]; then
+    cp "${image}" "${backup_dir}"
+  fi
+
+  # Save result
+  compressed_url="$(get_json_key "${json_response}" '.output.url')"
+  curl --silent "${compressed_url}" --output "${image}"
+done
+
+echo 'success|Finished compressing'</string>
+				<key>scriptargtype</key>
+				<integer>1</integer>
+				<key>scriptfile</key>
+				<string></string>
+				<key>type</key>
+				<integer>0</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>F2C7428D-06C2-4B70-8C70-8348AE71B137</string>
+			<key>version</key>
+			<integer>2</integer>
+		</dict>
 		<dict>
 			<key>config</key>
 			<dict>
@@ -223,117 +352,6 @@ fi</string>
 		<dict>
 			<key>config</key>
 			<dict>
-				<key>concurrently</key>
-				<false/>
-				<key>escaping</key>
-				<integer>102</integer>
-				<key>script</key>
-				<string># Constants
-readonly backup_dir="${backup_originals/#\~/${HOME}}/$(date -u +'%Y.%m.%d.%H%M%S')"
-
-# Helpers
-function get_json_key {
-  local -r json="${1}" # JSON string
-  local -r key="${2}" # Of the form ['first']['second'] or .first.second
-
-  local -r result="$(osascript -l 'JavaScript' -e "function run(argv) { return JSON.parse(argv[0])${key} }" "${json}")"
-
-  [[ -n "${key}" &amp;&amp; -n "${result}" ]] || return 1 # If no valid result
-
-  echo -n "${result}"
-}
-
-function error {
-  echo "${1}" &gt;&amp;2 # For Alfred's debugger
-  echo "error|${1}" # For the notification and sound
-  exit 1
-}
-
-# Main
-# Abort if backups are desirable but cannot create directory
-if [[ -n "${backup_originals}" ]] &amp;&amp; ! mkdir -p "${backup_dir}"; then
-  error "Could not create backups directory at ${backup_originals}!"
-fi
-
-# Loop over images
-for image in "${@}"; do
-  json_response="$(curl --silent --user api:"${api_key}" --data-binary @"${image}" -i 'https://api.tinify.com/shrink' | tail -1)"
-
-  # On error
-  if [[ -n "$(get_json_key "${json_response}" '.error')" ]]; then
-    error "$(get_json_key "${json_response}" '.message')"
-  fi
-
-  # Backup image
-  if [[ -d "${backup_dir}" ]]; then
-    cp "${image}" "${backup_dir}"
-  fi
-
-  # Save result
-  compressed_url="$(get_json_key "${json_response}" '.output.url')"
-  curl --silent "${compressed_url}" --output "${image}"
-done
-
-echo 'success|Finished compressing'</string>
-				<key>scriptargtype</key>
-				<integer>1</integer>
-				<key>scriptfile</key>
-				<string></string>
-				<key>type</key>
-				<integer>0</integer>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.action.script</string>
-			<key>uid</key>
-			<string>F2C7428D-06C2-4B70-8C70-8348AE71B137</string>
-			<key>version</key>
-			<integer>2</integer>
-		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
-				<key>acceptsmulti</key>
-				<integer>1</integer>
-				<key>filetypes</key>
-				<array>
-					<string>org.webmproject.webp</string>
-					<string>public.jpeg</string>
-					<string>public.png</string>
-				</array>
-				<key>name</key>
-				<string>TinyPNG Compression</string>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.trigger.action</string>
-			<key>uid</key>
-			<string>7EA1CA9C-97FC-4B89-999A-7CFE3D8CB0AE</string>
-			<key>version</key>
-			<integer>1</integer>
-		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
-				<key>lastpathcomponent</key>
-				<false/>
-				<key>onlyshowifquerypopulated</key>
-				<true/>
-				<key>removeextension</key>
-				<false/>
-				<key>text</key>
-				<string>{var:split2}</string>
-				<key>title</key>
-				<string>TinyPNG</string>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.output.notification</string>
-			<key>uid</key>
-			<string>72DE7DEE-B771-41EA-9A7C-F10F4F7A5DC5</string>
-			<key>version</key>
-			<integer>1</integer>
-		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
 				<key>anchorfields</key>
 				<true/>
 				<key>argumenttrimmode</key>
@@ -416,6 +434,57 @@ echo 'success|Finished compressing'</string>
 		<dict>
 			<key>config</key>
 			<dict>
+				<key>lastpathcomponent</key>
+				<false/>
+				<key>onlyshowifquerypopulated</key>
+				<true/>
+				<key>removeextension</key>
+				<false/>
+				<key>text</key>
+				<string>{var:split2}</string>
+				<key>title</key>
+				<string>TinyPNG</string>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.output.notification</string>
+			<key>uid</key>
+			<string>72DE7DEE-B771-41EA-9A7C-F10F4F7A5DC5</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>conditions</key>
+				<array>
+					<dict>
+						<key>inputstring</key>
+						<string>{var:notify}</string>
+						<key>matchcasesensitive</key>
+						<false/>
+						<key>matchmode</key>
+						<integer>0</integer>
+						<key>matchstring</key>
+						<string>false</string>
+						<key>outputlabel</key>
+						<string>Do not notify</string>
+						<key>uid</key>
+						<string>3052F81B-0ECE-4815-AFAE-DCDD42361205</string>
+					</dict>
+				</array>
+				<key>elselabel</key>
+				<string>Notify</string>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.utility.conditional</string>
+			<key>uid</key>
+			<string>9EDA38AD-8C38-42CA-A270-CFE7AEC0655C</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
 				<key>delimiter</key>
 				<string>|</string>
 				<key>trimarguments</key>
@@ -433,19 +502,6 @@ echo 'success|Finished compressing'</string>
 		<dict>
 			<key>config</key>
 			<dict>
-				<key>triggerid</key>
-				<string>compress</string>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.trigger.external</string>
-			<key>uid</key>
-			<string>FD60CC76-3DD5-45D7-A184-5A5580E0790F</string>
-			<key>version</key>
-			<integer>1</integer>
-		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
 				<key>soundname</key>
 				<string>Glass</string>
 				<key>systemsound</key>
@@ -455,6 +511,19 @@ echo 'success|Finished compressing'</string>
 			<string>alfred.workflow.output.playsound</string>
 			<key>uid</key>
 			<string>4D6432C7-2943-4DB6-A25F-B0AC57D3C6F2</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>triggerid</key>
+				<string>compress</string>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.trigger.external</string>
+			<key>uid</key>
+			<string>FD60CC76-3DD5-45D7-A184-5A5580E0790F</string>
 			<key>version</key>
 			<integer>1</integer>
 		</dict>
@@ -491,6 +560,19 @@ echo 'success|Finished compressing'</string>
 		<dict>
 			<key>config</key>
 			<dict>
+				<key>triggerid</key>
+				<string>silent_compress</string>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.trigger.external</string>
+			<key>uid</key>
+			<string>CB42BCC1-C05C-4B82-821E-BF371D852F7A</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
 				<key>soundname</key>
 				<string>Basso</string>
 				<key>systemsound</key>
@@ -503,9 +585,29 @@ echo 'success|Finished compressing'</string>
 			<key>version</key>
 			<integer>1</integer>
 		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argument</key>
+				<string>{query}</string>
+				<key>passthroughargument</key>
+				<false/>
+				<key>variables</key>
+				<dict>
+					<key>notify</key>
+					<string>false</string>
+				</dict>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.utility.argument</string>
+			<key>uid</key>
+			<string>8F44CFA0-9821-4998-B57A-CBD196BD069B</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
 	</array>
 	<key>readme</key>
-	<string>Use the File Action, File Filter, or External Trigger to compress PNG, JPEG, and WebP images via [TinyPNG](https://tinypng.com/).
+	<string>Use the File Action, File Filter, or External Triggers to compress PNG, JPEG, and WebP images via [TinyPNG](https://tinypng.com/).
 
 ![](https://i.imgur.com/mlX713P.png)
 
@@ -524,21 +626,21 @@ Before using the Workflow, [request an API key](https://tinypng.com/developers) 
 		<key>4D6432C7-2943-4DB6-A25F-B0AC57D3C6F2</key>
 		<dict>
 			<key>xpos</key>
-			<integer>575</integer>
+			<integer>700</integer>
 			<key>ypos</key>
 			<integer>320</integer>
 		</dict>
 		<key>6D56D157-3EBC-41F6-A030-1C9A9E4490DF</key>
 		<dict>
 			<key>xpos</key>
-			<integer>575</integer>
+			<integer>700</integer>
 			<key>ypos</key>
 			<integer>455</integer>
 		</dict>
 		<key>72DE7DEE-B771-41EA-9A7C-F10F4F7A5DC5</key>
 		<dict>
 			<key>xpos</key>
-			<integer>575</integer>
+			<integer>700</integer>
 			<key>ypos</key>
 			<integer>190</integer>
 		</dict>
@@ -549,12 +651,35 @@ Before using the Workflow, [request an API key](https://tinypng.com/developers) 
 			<key>ypos</key>
 			<integer>40</integer>
 		</dict>
+		<key>8F44CFA0-9821-4998-B57A-CBD196BD069B</key>
+		<dict>
+			<key>xpos</key>
+			<integer>195</integer>
+			<key>ypos</key>
+			<integer>480</integer>
+		</dict>
+		<key>9EDA38AD-8C38-42CA-A270-CFE7AEC0655C</key>
+		<dict>
+			<key>xpos</key>
+			<integer>400</integer>
+			<key>ypos</key>
+			<integer>190</integer>
+		</dict>
 		<key>C22E0CBD-0683-4E3A-80E5-6532D8E5440E</key>
 		<dict>
 			<key>xpos</key>
-			<integer>455</integer>
+			<integer>580</integer>
 			<key>ypos</key>
 			<integer>355</integer>
+		</dict>
+		<key>CB42BCC1-C05C-4B82-821E-BF371D852F7A</key>
+		<dict>
+			<key>note</key>
+			<string>Compress but do not show notification</string>
+			<key>xpos</key>
+			<integer>35</integer>
+			<key>ypos</key>
+			<integer>450</integer>
 		</dict>
 		<key>DB3CBD80-5AFA-4CF7-97B8-A9AAB1651C88</key>
 		<dict>
@@ -563,14 +688,14 @@ Before using the Workflow, [request an API key](https://tinypng.com/developers) 
 			<key>note</key>
 			<string>OneUpdater</string>
 			<key>xpos</key>
-			<integer>455</integer>
+			<integer>700</integer>
 			<key>ypos</key>
 			<integer>40</integer>
 		</dict>
 		<key>E4256C3E-6831-43F5-805C-F667A3D7E726</key>
 		<dict>
 			<key>xpos</key>
-			<integer>415</integer>
+			<integer>540</integer>
 			<key>ypos</key>
 			<integer>220</integer>
 		</dict>
@@ -601,7 +726,7 @@ Before using the Workflow, [request an API key](https://tinypng.com/developers) 
 		<string>api_key</string>
 	</array>
 	<key>version</key>
-	<string>2021.1</string>
+	<string>2022.1</string>
 	<key>webaddress</key>
 	<string>https://github.com/alfredapp/tinypng-workflow</string>
 </dict>

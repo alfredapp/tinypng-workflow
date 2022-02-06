@@ -4,7 +4,7 @@ Compress images via TinyPNG
 
 ## Instructions
 
-Use the File Action, File Filter, or External Trigger to compress PNG, JPEG, and WebP images via [TinyPNG](https://tinypng.com/).
+Use the File Action, File Filter, or External Triggers to compress PNG, JPEG, and WebP images via [TinyPNG](https://tinypng.com/).
 
 ![](https://i.imgur.com/mlX713P.png)
 
