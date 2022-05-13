@@ -228,6 +228,11 @@ fi
 for image in "${@}"; do
   json_response="$(curl --silent --user api:"${api_key}" --data-binary @"${image}" -i 'https://api.tinify.com/shrink' | tail -1)"
 
+  # On failed connection
+  if [[ -z "${json_response}" ]]; then
+    error 'Unable to connect to TinyPNG'
+  fi
+
   # On error
   if [[ -n "$(get_json_key "${json_response}" '.error')" ]]; then
     error "$(get_json_key "${json_response}" '.message')"
@@ -249,7 +254,7 @@ echo 'success|Finished compressing'</string>
 				<key>scriptfile</key>
 				<string></string>
 				<key>type</key>
-				<integer>0</integer>
+				<integer>5</integer>
 			</dict>
 			<key>type</key>
 			<string>alfred.workflow.action.script</string>
@@ -609,7 +614,7 @@ fi</string>
 	<key>readme</key>
 	<string>Use the File Action, File Filter, or External Triggers to compress PNG, JPEG, and WebP images via [TinyPNG](https://tinypng.com/).
 
-![](https://i.imgur.com/mlX713P.png)
+![](https://user-images.githubusercontent.com/1699443/152709135-ddf20b2a-5300-49b6-95dc-9d5a27605681.png)
 
 Before using the Workflow, [request an API key](https://tinypng.com/developers) and add it to the `api_key` Workflow Environment Variable.
 
@@ -719,14 +724,14 @@ Before using the Workflow, [request an API key](https://tinypng.com/developers) 
 		<key>api_key</key>
 		<string></string>
 		<key>backup_originals</key>
-		<string>/tmp/com.alfredapp.tinypng_backups</string>
+		<string>/tmp/com.alfredapp.tinypng.backups</string>
 	</dict>
 	<key>variablesdontexport</key>
 	<array>
 		<string>api_key</string>
 	</array>
 	<key>version</key>
-	<string>2022.1</string>
+	<string>2022.2</string>
 	<key>webaddress</key>
 	<string>https://github.com/alfredapp/tinypng-workflow</string>
 </dict>
