@@ -411,7 +411,7 @@ echo 'success|Finished compressing'</string>
 				<key>includesystem</key>
 				<false/>
 				<key>keyword</key>
-				<string>tinypng</string>
+				<string>{var:search_keyword}</string>
 				<key>limit</key>
 				<integer>0</integer>
 				<key>runningsubtext</key>
@@ -498,6 +498,8 @@ echo 'success|Finished compressing'</string>
 			<dict>
 				<key>delimiter</key>
 				<string>|</string>
+				<key>discardemptyarguments</key>
+				<false/>
 				<key>outputas</key>
 				<integer>0</integer>
 				<key>trimarguments</key>
@@ -626,11 +628,19 @@ echo 'success|Finished compressing'</string>
 		</dict>
 	</array>
 	<key>readme</key>
-	<string>Before using the Workflow, [request an API key](https://tinypng.com/developers).
+	<string>## Setup
 
-Use the File Action, File Filter, or External Triggers to compress PNG, JPEG, and WebP images via [TinyPNG](https://tinypng.com/).
+[Get an API key](https://tinypng.com/developers) for TinyPNG.
 
-![Alfred File Action for TinyPNG Compression](images/about/fileaction.png)</string>
+## Usage
+
+Use the [Universal Action](https://www.alfredapp.com/help/features/universal-actions/) to compress PNG, JPEG, and WebP images via [TinyPNG](https://tinypng.com/).
+
+![Alfred File Action for TinyPNG Compression](images/about/fileaction.png)
+
+Alteratively, run the Search Keywords (default: `tinypng`) and type to filter.
+
+![Alfred search for tinypng transparenc](images/about/filefilter.png)</string>
 	<key>uidata</key>
 	<dict>
 		<key>392049EC-35AB-4C54-8A20-5565FBF67B32</key>
@@ -737,6 +747,27 @@ Use the File Action, File Filter, or External Triggers to compress PNG, JPEG, an
 			<key>config</key>
 			<dict>
 				<key>default</key>
+				<string>tinypng</string>
+				<key>placeholder</key>
+				<string></string>
+				<key>required</key>
+				<false/>
+				<key>trim</key>
+				<true/>
+			</dict>
+			<key>description</key>
+			<string>Keyword to search for images.</string>
+			<key>label</key>
+			<string>Search Keyword</string>
+			<key>type</key>
+			<string>textfield</string>
+			<key>variable</key>
+			<string>search_keyword</string>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>default</key>
 				<string></string>
 				<key>placeholder</key>
 				<string></string>
@@ -761,6 +792,8 @@ Use the File Action, File Filter, or External Triggers to compress PNG, JPEG, an
 				<string>/tmp/com.alfredapp.tinypng.backups</string>
 				<key>filtermode</key>
 				<integer>1</integer>
+				<key>placeholder</key>
+				<string></string>
 				<key>required</key>
 				<false/>
 			</dict>
@@ -774,10 +807,8 @@ Use the File Action, File Filter, or External Triggers to compress PNG, JPEG, an
 			<string>backup_originals</string>
 		</dict>
 	</array>
-	<key>variablesdontexport</key>
-	<array/>
 	<key>version</key>
-	<string>2022.4</string>
+	<string>2022.5</string>
 	<key>webaddress</key>
 	<string>https://github.com/alfredapp/tinypng-workflow/</string>
 </dict>
