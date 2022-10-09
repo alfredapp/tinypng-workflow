@@ -4,7 +4,7 @@ Compress images via TinyPNG
 
 <a href='https://github.com/alfredapp/tinypng-workflow/releases/latest/download/TinyPNG.alfredworkflow'>⤓ Download Workflow</a>
 
-## About
+> On Alfred 4 use <a href='https://github.com/alfredapp/tinypng-workflow/releases/download/2022.3/TinyPNG.alfredworkflow'>alternative link</a>
 
 ## Setup
 
@@ -19,5 +19,3 @@ Use the [Universal Action](https://www.alfredapp.com/help/features/universal-act
 Alteratively, run the Search Keywords (default: `tinypng`) and type to filter.
 
 ![Alfred search for tinypng transparenc](Workflow/images/about/filefilter.png)
-
-<a href='https://github.com/alfredapp/tinypng-workflow/releases/latest/download/TinyPNG.alfredworkflow'>⤓ Download Workflow</a>
