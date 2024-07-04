@@ -210,13 +210,13 @@ function error {
 
 # Main
 # Abort if backups are desirable but cannot create directory
-if [[ -n "${backup_originals}" ]] &amp;&amp; ! mkdir -p "${backup_dir}"; then
+if [[ -n "${backup_originals}" ]] &amp;&amp; ! /bin/mkdir -p "${backup_dir}"; then
   error "Could not create backups directory at ${backup_originals}!"
 fi
 
 # Loop over images
 for image in "${@}"; do
-  json_response="$(curl --silent --user api:"${api_key}" --data-binary @"${image}" -i 'https://api.tinify.com/shrink' | tail -1)"
+  json_response="$(/usr/bin/curl --silent --user api:"${api_key}" --data-binary @"${image}" -i 'https://api.tinify.com/shrink' | /usr/bin/tail -1)"
 
   # On failed connection
   if [[ -z "${json_response}" ]]; then
@@ -230,12 +230,12 @@ for image in "${@}"; do
 
   # Backup image
   if [[ -d "${backup_dir}" ]]; then
-    cp "${image}" "${backup_dir}"
+    /bin/cp -p "${image}" "${backup_dir}"
   fi
 
   # Save result
   compressed_url="$(get_json_key "${json_response}" '.output.url')"
-  curl --silent "${compressed_url}" --output "${image}"
+  /usr/bin/curl --silent "${compressed_url}" --output "${image}"
 done
 
 echo 'success|Finished compressing'</string>
